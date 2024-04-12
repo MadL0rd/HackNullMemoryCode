@@ -33,25 +33,19 @@ export class BotContentService implements OnModuleInit {
     async onModuleInit(): Promise<void> {
         if (internalConstants.cacheBotContentOnStart == false) return
 
-        // eslint-disable-next-line @typescript-eslint/no-this-alias
-        const self = this
         try {
             await this.localizationService.cacheLocalization()
         } catch (error) {
             logger.error(`Fail to cache localization`, error)
             return
         }
-        const loadingPromises = DataSheetPrototype.allPagesContent.map(async (pageName) => {
-            const cacheSpreadsheetFunc = async function (): Promise<void> {
-                try {
-                    await self.cacheSpreadsheetPage(pageName)
-                } catch (error) {
-                    logger.error(`Fail to cache spreadsheet page ${pageName}`, error)
-                }
+        for (const pageName of DataSheetPrototype.allPagesContent) {
+            try {
+                await this.cacheSpreadsheetPage(pageName)
+            } catch (error) {
+                logger.error(`Fail to cache spreadsheet page ${pageName}`, error)
             }
-            return await cacheSpreadsheetFunc()
-        })
-        await Promise.all(loadingPromises)
+        }
     }
 
     // =====================

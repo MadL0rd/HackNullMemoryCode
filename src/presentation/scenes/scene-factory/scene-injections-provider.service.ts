@@ -8,6 +8,7 @@ import { StatisticService } from 'src/business-logic/user/statistic.service'
 import { SurveyContextProviderFactoryService } from 'src/presentation/survey-context/survey-context-provider-factory/survey-context-provider-factory.service'
 import { PublicationStorageService } from 'src/business-logic/publication-storage/publication-storage.service'
 import { ModeratedPublicationsService } from 'src/presentation/publication-management/moderated-publications/moderated-publications.service'
+import { GptApiService } from 'src/business-logic/gpt-api/gpt-api.service'
 
 interface Type<T> {
     new (...args: any[]): T
@@ -37,7 +38,8 @@ export class SceneInjectionsProviderService {
         protected readonly statisticService: StatisticService,
         protected readonly publicationStorageService: PublicationStorageService,
         protected readonly moderatedPublicationService: ModeratedPublicationsService,
-        @InjectBot() private readonly bot: Telegraf
+        @InjectBot() private readonly bot: Telegraf,
+        protected readonly gptService: GptApiService
     ) {
         const propertyNames = Object.keys(this).filter((prop) => prop != 'registry')
         const tokens =

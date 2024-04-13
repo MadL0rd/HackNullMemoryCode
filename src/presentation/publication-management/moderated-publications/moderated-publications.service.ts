@@ -284,8 +284,9 @@ export class ModeratedPublicationsService {
                 return
 
             case 'moderation':
-                textForUser = text.moderation.messageTextModeration
-                break
+                return
+            // textForUser = text.moderation.messageTextModeration
+            // break
 
             case 'rejected':
                 textForUser = text.moderation.messageTextRejected

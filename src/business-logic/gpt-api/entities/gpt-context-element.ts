@@ -1,4 +1,4 @@
-import { ChatCompletionRole } from 'node_modules/openai/resources'
+type ChatCompletionRole = 'system' | 'assistant' | 'user'
 
 export class GptContextElement {
     role: ChatCompletionRole

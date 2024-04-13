@@ -154,21 +154,14 @@ export class ModerationChatDispatcherService {
     }
 
     private async handlePlacePublication(publication: PublicationDocument, ctx: Context<Update>) {
-        if (publication.status == 'rejected' || publication.status == 'notRelevant') {
-            await this.sendMessageToCurrentThread(
-                ctx,
-                'Нельзя опубликовать заявки, имеющие статус Отклонённая или Не актуально'
-            )
+        if (publication.status != 'active') {
+            await this.sendMessageToCurrentThread(ctx, 'Можно публиковать только принятые заявки')
             return
         }
         const message = ctx.message as Message.TextMessage
         const channelIdList = message.text.split(' ').slice(1)
         if (channelIdList.isEmpty) {
-            await this.sendMessageToCurrentThread(
-                ctx,
-                'Не удалось распознать id канала для публикации'
-            )
-            return
+            channelIdList.push(internalConstants.publicationMainChannelId.toString())
         }
 
         // Create main channel publication

@@ -134,6 +134,7 @@ export namespace _SurveyFormatter {
             if (Survey.Helper.isPassedAnswerMediaType(answer)) continue
 
             const answerStringValue = Survey.Helper.getAnswerStringValue(answer, text)
+            if (!answerStringValue) continue
             publicationText += `${answer.question.publicTitle}: <b>${answerStringValue}</b>\n`
         }
 

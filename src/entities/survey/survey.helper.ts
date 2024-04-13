@@ -13,6 +13,7 @@ export namespace _SurveyHelper {
         options: 'Выбор варианта',
         numeric: 'Число',
         string: 'Строка',
+        stringGptTips: 'Строка + GPT',
         image: 'Изображение',
         video: 'Видео',
         mediaGroup: 'Медиа группа',
@@ -47,6 +48,7 @@ export namespace _SurveyHelper {
     ): answer is SurveyEntity.PassedAnswerMedia {
         switch (answer.type) {
             case 'string':
+            case 'stringGptTips':
             case 'options':
             case 'numeric':
                 return false
@@ -117,6 +119,13 @@ export namespace _SurveyHelper {
             case 'string':
                 return {
                     type: 'string',
+                    question: question,
+                    selectedString: undefined,
+                }
+
+            case 'stringGptTips':
+                return {
+                    type: 'stringGptTips',
                     question: question,
                     selectedString: undefined,
                 }

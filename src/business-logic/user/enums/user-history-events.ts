@@ -85,5 +85,9 @@ export const eventsSchema = {
         type: 'startSceneModerationEditing',
         localizedTitle: 'Перешел к сцене moderationEditing',
     },
+    startSceneSurveyDescription: {
+        type: 'startSceneSurveyDescription',
+        localizedTitle: 'Перешел к сцене surveyDescription',
+    },
     /** New scene event placeholder */
 } as const

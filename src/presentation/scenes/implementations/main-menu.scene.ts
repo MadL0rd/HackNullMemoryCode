@@ -87,11 +87,7 @@ export class MainMenuScene extends Scene<ISceneData, SceneEnterDataType> {
                 return this.completion.complete({ sceneName: 'moderationEditing' })
 
             case this.text.mainMenu.buttonSurvey:
-                return this.completion.complete({
-                    sceneName: 'survey',
-                    providerType: 'default',
-                    allowContinueQuestion: true,
-                })
+                return this.completion.complete({ sceneName: 'surveyDescription' })
         }
 
         return this.completion.canNotHandle({})

@@ -17,6 +17,7 @@ import { SurveyQuestionStringNumericScene } from 'src/presentation/scenes/implem
 import { SurveyQuestionMediaScene } from 'src/presentation/scenes/implementations/survey/survey-question-media.scene'
 import { UserPublicationsScene } from 'src/presentation/scenes/implementations/user-publications.scene'
 import { ModerationEditingScene } from 'src/presentation/scenes/implementations/moderation-editing.scene'
+import { SurveyDescriptionScene } from 'src/presentation/scenes/implementations/survey-description.scene'
 /** New scene import placeholder */
 
 @Injectable()
@@ -55,6 +56,8 @@ export class SceneFactoryService {
                 return this.injectionsProvider.resolve(UserPublicationsScene)
             case 'moderationEditing':
                 return this.injectionsProvider.resolve(ModerationEditingScene)
+            case 'surveyDescription':
+                return this.injectionsProvider.resolve(SurveyDescriptionScene)
             /** New scene generation placeholder */
         }
         return null

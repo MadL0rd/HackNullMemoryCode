@@ -10,6 +10,7 @@ export class UniqueMessage {
     readonly payment = new Payment()
     readonly notification = new Notification()
     readonly surveyContinue = new SurveyContinue()
+    readonly surveyDescription = new SurveyDescription()
     readonly survey = new Survey()
     readonly surveyQuestionMedia = new SurveyQuestionMedia()
     readonly surveyFinal = new SurveyFinal()
@@ -105,10 +106,15 @@ export class SurveyContinue {
     readonly buttonResume = 'Продолжить'
 }
 
+export class SurveyDescription {
+    readonly text = 'Вам нужно ответить на несколько вопросов, чтобы бот помог вам заполнить страницу памяти на сайте MemoryCode.ru\nВы можете в любой момент прерваться и продолжить заполнение страницы без потери прогресса'
+    readonly buttonStart = 'Приступить'
+}
+
 export class Survey {
     readonly buttonOptionalQuestionSkip = '👀 Пропустить'
     readonly buttonBackToPreviousQuestion = '⬅️ Вернуться к предыдущему вопросу'
-    readonly texMessageAditionaltInlineMenu = 'Также вы можете'
+    readonly texMessageAditionaltInlineMenu = 'Возврат к предыдущему вопросу'
     readonly buttonAditionaltInlineMenuSkip = '👀 Пропустить'
     readonly buttonAditionaltInlineMenuBackToPrevious = '⬆️ Вернуться'
     readonly textAditionaltInlineMenuSkipEventLog = '<i>👀 Вопрос пропущен</i>'
@@ -165,7 +171,7 @@ export class Moderation {
     readonly publicationStatusActive = '✅ Актуально'
     readonly publicationStatusNotRelevant = '❌ Не актуально'
     readonly publicationTextLink = '[Ссылка на публикацию](postLinkPlaceholder)'
-    readonly messageText = '📩 *Сообщение от команды ShinestBot*\n\nID публикации: *advertIdPlaceholder*\nДата подачи заявки: advertCreationDatePlaceholder'
+    readonly messageText = '📩 *Сообщение от команды NullPointerException*\n\nID публикации: *advertIdPlaceholder*\nДата подачи заявки: advertCreationDatePlaceholder'
     readonly messageTextModeration = 'Ваше объявление было успешно отправлено на модерацию\n\nID: *advertIdPlaceholder*\nДата подачи заявки: advertCreationDatePlaceholder\n'
     readonly messageTextAccepted = '🎉 *Поздравляем* 🎉\nВаше объявление было принято\n\nID: *advertIdPlaceholder*\nДата подачи заявки: advertCreationDatePlaceholder'
     readonly messageTextRejected = '🚫 *Внимание* 🚫\nВаше объявление было Отклонено\n\nID: *advertIdPlaceholder*\nДата подачи заявки: advertCreationDatePlaceholder'

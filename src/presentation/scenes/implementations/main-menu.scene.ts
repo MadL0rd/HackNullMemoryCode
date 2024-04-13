@@ -129,7 +129,9 @@ export class MainMenuScene extends Scene<ISceneData, SceneEnterDataType> {
                 this.text.mainMenu.buttonSurvey,
                 this.text.mainMenu.buttonLanguageSettings,
                 this.text.mainMenu.userPublications,
-                ownerOrAdmin ? this.text.mainMenu.editPublicationAsAdmin : null,
+                ownerOrAdmin && this.user.internalInfo.adminsOnly.modifyingPublicationIdPrepared
+                    ? this.text.mainMenu.editPublicationAsAdmin
+                    : null,
                 ownerOrAdmin ? this.text.mainMenu.buttonAdminMenu : null,
             ].compact
         )

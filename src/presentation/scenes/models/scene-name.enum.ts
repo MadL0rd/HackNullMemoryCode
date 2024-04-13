@@ -17,6 +17,7 @@ export namespace SceneName {
         'userPublications',
         'moderationEditing',
         'surveyDescription',
+        'surveyQuestionStringGptTips',
         /** New scene name placeholder */
     ] as const
 

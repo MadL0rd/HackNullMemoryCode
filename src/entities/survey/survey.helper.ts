@@ -95,6 +95,7 @@ export namespace _SurveyHelper {
                 return answer.question.options.find(
                     (option) => option.id == answer.selectedOptionId
                 )?.text
+
             case 'numeric':
                 const unitLabel = answer.question.unit
                 if (unitLabel && answer.selectedNumber) {
@@ -102,7 +103,9 @@ export namespace _SurveyHelper {
                 } else {
                     return answer.selectedNumber?.toStringWithSpaces
                 }
+
             case 'string':
+            case 'stringGptTips':
                 return answer.selectedString
 
             case 'image':

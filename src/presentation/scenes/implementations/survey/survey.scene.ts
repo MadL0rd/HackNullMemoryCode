@@ -112,6 +112,13 @@ export class SurveyScene extends Scene<ISceneData, SceneEnterDataType> {
                     question: nextQuestion,
                     isQuestionFirst: isQuestionFirst,
                 })
+            case 'stringGptTips':
+                return this.completion.complete({
+                    sceneName: 'surveyQuestionStringGptTips',
+                    providerType: data.providerType,
+                    question: nextQuestion,
+                    isQuestionFirst: isQuestionFirst,
+                })
             case 'image':
             case 'video':
             case 'mediaGroup':

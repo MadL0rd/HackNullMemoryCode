@@ -29,6 +29,11 @@ enum EnvKeys {
     gptApiKey = 'GPT_API_KEY',
     gptModelUri = 'GPT_MODEL_URI',
 
+    // MemoryCode
+    memoryCodeEmail = 'MEMORY_CODE_EMAIL',
+    memoryCodePassword = 'MEMORY_CODE_PASSWORD',
+    memoryCodeDevice = 'MEMORY_CODE_DEVICE',
+
     // Payment
     paymentProviderToken = 'PAYMENT_PROVIDER_TOKEN',
 
@@ -110,6 +115,16 @@ class InternalConstants {
     }
     get gptModelUri(): string {
         return this.getEnvString(EnvKeys.gptModelUri)
+    }
+
+    get memoryCodeEmail(): string {
+        return this.getEnvString(EnvKeys.memoryCodeEmail)
+    }
+    get memoryCodePassword(): string {
+        return this.getEnvString(EnvKeys.memoryCodePassword)
+    }
+    get memoryCodeDevice(): string {
+        return this.getEnvString(EnvKeys.memoryCodeDevice)
     }
 
     // Other

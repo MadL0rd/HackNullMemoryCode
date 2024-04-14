@@ -161,20 +161,8 @@ export class SurveyQuestionStringGptTipsUpdateWithGptScene extends Scene<
         const message = ctx.message
         if (!message || !('text' in message)) return this.completion.canNotHandle(data)
 
-        switch (message.text) {
-            case this.text.surveyQuestionGptTip.buttonUpdateWithGptWishesYes:
-                await ctx.replyWithHTML(
-                    this.text.surveyQuestionGptTip.textUpdateWithGptWishesEnter,
-                    removeKeyboard()
-                )
-                data.state = 'waitForUserWishes'
-                return this.completion.inProgress(data)
-
-            case this.text.surveyQuestionGptTip.buttonUpdateWithGptWishesNo:
-                return await this.sendGptAnswerAndComplete(ctx, data)
-        }
-
-        return this.completion.canNotHandle(data)
+        data.userWishes = message.text
+        return await this.sendGptAnswerAndComplete(ctx, data)
     }
 
     private async sendGptAnswerAndComplete(

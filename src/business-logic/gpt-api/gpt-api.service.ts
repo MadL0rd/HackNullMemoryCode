@@ -33,7 +33,7 @@ export class GptApiService {
             return response.data.result?.alternatives?.first?.message?.text?.replaceAll('*', '')
         } catch (error) {
             console.error('Error sending completion request:', error)
-            throw error
+            return undefined
         }
     }
 }

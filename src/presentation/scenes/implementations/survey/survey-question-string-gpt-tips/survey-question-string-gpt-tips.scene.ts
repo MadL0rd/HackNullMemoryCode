@@ -28,6 +28,7 @@ type SceneEnterDataType = SurveyQuestionStringGptTipsSceneEntranceDto
 interface ISceneData {
     readonly providerType: SurveyContextProviderType.Union
     readonly question: Survey.QuestionStringGptTips
+    readonly isQuestionFirst: boolean
     state: 'startMenu' | 'waitingForUserAnswer'
 }
 
@@ -272,6 +273,12 @@ export class SurveyQuestionStringGptTipsScene extends Scene<ISceneData, SceneEnt
         const message = ctx.message
         if (!message || !('text' in message)) return this.completion.canNotHandle(data)
 
-        return this.completion.canNotHandle(data)
+        return this.completion.complete({
+            sceneName: 'surveyQuestionStringGptTipsAnswerEditing',
+            providerType: data.providerType,
+            question: data.question,
+            isQuestionFirst: data.isQuestionFirst,
+            currentAnswer: message.text,
+        })
     }
 }

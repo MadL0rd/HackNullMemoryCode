@@ -19,6 +19,12 @@ export const eventsSchema = {
         data: undefined as string | undefined,
     },
 
+    surveyQuestionStartAnswering: {
+        type: 'surveyQuestionStartAnswering',
+        localizedTitle: 'Начал отвечать на вопрос',
+        questionId: '' as string,
+    },
+
     failedToSendMessage: {
         type: 'failedToSendMessage',
         localizedTitle: 'Не удалось отправить сообщение пользователю',

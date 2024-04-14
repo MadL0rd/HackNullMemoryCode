@@ -14,6 +14,8 @@ import { generateInlineButtonSegue } from 'src/presentation/utils/inline-button.
 import { SceneCallbackAction } from 'src/presentation/scenes/models/scene-callback'
 import { UserProfile } from 'src/entities/user-profile'
 import { Survey } from 'src/entities/survey'
+import { MemoryCodeApiService } from 'src/business-logic/memory-code-api/memory-code-api.service'
+import { BotContent } from 'src/entities/bot-content'
 
 @Injectable()
 export class ModerationChatDispatcherService {
@@ -26,6 +28,7 @@ export class ModerationChatDispatcherService {
         private readonly userService: UserService,
         private readonly publicationStorageService: PublicationStorageService,
         private readonly moderatedPublicationService: ModeratedPublicationsService,
+        private readonly memoryCodeApiService: MemoryCodeApiService,
         @InjectBot() private readonly bot: Telegraf
     ) {}
 
@@ -91,6 +94,10 @@ export class ModerationChatDispatcherService {
 
                 case botContent.uniqueMessage.moderationCommand.edit:
                     await this.handleEditPublication(user, publication, ctx)
+                    return
+
+                case botContent.uniqueMessage.moderationCommand.placeMemoryCode:
+                    await this.handleUpdateMemoryCodePage(publication, botContent, ctx)
                     return
             }
         }
@@ -241,6 +248,24 @@ export class ModerationChatDispatcherService {
         await this.moderatedPublicationService.updatePublication(publication._id.toString(), {
             placementHistory: publication.placementHistory,
         })
+    }
+
+    private async handleUpdateMemoryCodePage(
+        publication: PublicationDocument,
+        botContent: BotContent.BaseType,
+        ctx: Context<Update>
+    ) {
+        const success = await this.memoryCodeApiService.updatePageWithPublicationContent(
+            publication,
+            botContent.uniqueMessage
+        )
+
+        // Notify admin
+        if (success) {
+            await this.sendSuccessMessageToCurrentThread(ctx)
+        } else {
+            await this.sendMessageToCurrentThread(ctx, botContent.uniqueMessage.common.errorMessage)
+        }
     }
 
     private async handlePublicationApprove(

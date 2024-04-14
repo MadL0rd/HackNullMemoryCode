@@ -10,9 +10,11 @@ export class UniqueMessage {
     readonly payment = new Payment()
     readonly notification = new Notification()
     readonly surveyContinue = new SurveyContinue()
+    readonly surveyDescription = new SurveyDescription()
     readonly survey = new Survey()
     readonly surveyQuestionMedia = new SurveyQuestionMedia()
     readonly surveyFinal = new SurveyFinal()
+    readonly surveyQuestionGptTip = new SurveyQuestionGptTip()
     readonly moderationCommand = new ModerationCommand()
     readonly moderation = new Moderation()
     readonly userPublications = new UserPublications()
@@ -105,10 +107,15 @@ export class SurveyContinue {
     readonly buttonResume = 'Продолжить'
 }
 
+export class SurveyDescription {
+    readonly text = 'Вам нужно ответить на несколько вопросов, чтобы бот помог вам заполнить страницу памяти на сайте MemoryCode.ru\n\nВы можете в любой момент вернуться в главное меню при помощи команды /back_to_menu и позже продолжить заполнение страницы без потери прогресса\n\nЕсли вы ранее уже заполняли эту анкету, на следующем шаге вам будет предложено продолжить'
+    readonly buttonStart = 'Приступить'
+}
+
 export class Survey {
     readonly buttonOptionalQuestionSkip = '👀 Пропустить'
     readonly buttonBackToPreviousQuestion = '⬅️ Вернуться к предыдущему вопросу'
-    readonly texMessageAditionaltInlineMenu = 'Также вы можете'
+    readonly texMessageAditionaltInlineMenu = 'Навигация'
     readonly buttonAditionaltInlineMenuSkip = '👀 Пропустить'
     readonly buttonAditionaltInlineMenuBackToPrevious = '⬆️ Вернуться'
     readonly textAditionaltInlineMenuSkipEventLog = '<i>👀 Вопрос пропущен</i>'
@@ -133,6 +140,30 @@ export class SurveyFinal {
     readonly buttonDone = 'Отправить'
 }
 
+export class SurveyQuestionGptTip {
+    readonly textWaitingForGptAnswer = 'Формулирую ответ...'
+    readonly textStartMenu = 'Бот может помочь Вам ответить на этот вопрос\nДля начала нужно кратко изложить основную мысль, если трудно сделать это сразу - бот задаст вам дополнительные вопросы'
+    readonly buttonStartMenuContinue = 'Отлично, приступаю!'
+    readonly buttonStartMenuGptTip = 'Помоги собраться с мыслями'
+    readonly promptStartMenuGptTipTemperature = '0.4'
+    readonly promptStartMenuGptTip = 'Я прохожу опрос для заполнения страницы посвященной памяти погибшего родственника.\nЯ уже увидел вопрос, но не смог сформулировать ответ самостоятельно, задай мне несколько наводящих вопросов чтобы помочь собраться с мыслями.\nЕсли информации достаточно, используй при формировании подсказок ответы на предыдущие вопросы.\nСООБЩЕНИЕ ОБЯЗАТЕЛЬНО ДОЛЖНО СОДЕРЖАТЬ КАК МИНИМУМ 3 ВОПРОСА ВОПРОСЫ ДОЛЖНЫ ПОДРАЗУМЕВАТЬ РАЗВЕРНУТЫЙ ОТВЕТ ОТВЕЧАЙ ОТ ЛИЦА БОТА, ПРИШЛИ ТОЛЬКО ИТОГОВОЕ СООБЩЕНИЕ.\nТебе НЕЛЬЗЯ ИСПОЛЬЗОВАТЬ В СВОЁМ ОТВЕТЕ ФРАЗЫ:"ВОПРОСЫ ПОЛЬЗОВАТЕЛЮ", "ПРИМЕР СООБЩЕНИЯ"\nДалее данные: - код языка, на котором нужно ОБЯЗАТЕЛЬНО перевести твое сообщение ЦЕЛИКОМ - текущий вопрос - мои ответы на предыдущие вопросы'
+    readonly textStartMenuEnterMessage = 'Напишите ваш ответ текстом или отправьте голосовое сообщение'
+    readonly textAnswerEditing = 'Отлично!\nВот что у вас получилось:'
+    readonly buttonAnswerEditingDone = 'Мне нравится, можем идти дальше'
+    readonly buttonAnswerEditingUpdateWithGpt = 'Попробуй улучшить мой ответ'
+    readonly buttonAnswerEditingRestart = 'Хочу ответить на вопрос заново'
+    readonly textUpdateWithGptWishes = 'Есть ли у Вас дополнительные пожелания'
+    readonly buttonUpdateWithGptWishesYes = 'Да, сейчас расскажу'
+    readonly buttonUpdateWithGptWishesNo = 'Сделай на свой вкус'
+    readonly textUpdateWithGptWishesEnter = 'Напишите ваш ответ текстом или отправьте голосовое сообщение'
+    readonly promptUpdateWithGptTemperature = '0.4'
+    readonly promptUpdateWithGpt = 'Я прохожу опрос для заполнения страницы посвященной памяти умершего родственника. \nНужно помочь мне развёрнуто ответить на вопрос.\nЕсли информации достаточно, используй ответы на предыдущие вопросы.\nВ ОТВЕТЕ ДОЛЖЕН БЫТЬ РОВНО ОДИН ВАРИАНТ ЭПИТАФИИ.\nВ ОТВЕТЕ НЕ ДОЛЖНО БЫТЬ НИЧЕГО ЛИШНЕГО, ТОЛЬКО ОТВЕТ НА ВОПРОС.\nОБЯЗАТЕЛЬНО УЧИТЫВАЙ МОИ ПОЖЕЛАНИЯ\nДалее данные: - код языка, на котором нужно ОБЯЗАТЕЛЬНО перевести твое сообщение ЦЕЛИКОМ - текущий вопрос - мои ответы на предыдущие вопросы'
+    readonly textUpdateWithGptSaveResult = 'Как Вам результат?'
+    readonly buttonUpdateWithGptSaveResultYes = 'Мне нравится'
+    readonly buttonUpdateWithGptSaveResultTryAgain = 'Попробуй ещё раз'
+    readonly buttonUpdateWithGptSaveResultNo = 'Прошлый вариант был лучше'
+}
+
 export class ModerationCommand {
     /** Команда для чата модерации */
     readonly approve = 'Принять'
@@ -144,6 +175,8 @@ export class ModerationCommand {
     readonly notRelevant = 'Не актуально'
     /** Команда для чата модерации */
     readonly edit = 'Редактировать'
+    /** Команда для чата модерации */
+    readonly placeMemoryCode = 'Обновить на MemoryCode'
 }
 
 export class Moderation {
@@ -165,7 +198,7 @@ export class Moderation {
     readonly publicationStatusActive = '✅ Актуально'
     readonly publicationStatusNotRelevant = '❌ Не актуально'
     readonly publicationTextLink = '[Ссылка на публикацию](postLinkPlaceholder)'
-    readonly messageText = '📩 *Сообщение от команды ShinestBot*\n\nID публикации: *advertIdPlaceholder*\nДата подачи заявки: advertCreationDatePlaceholder'
+    readonly messageText = '📩 *Сообщение от команды NullPointerException*\n\nID публикации: *advertIdPlaceholder*\nДата подачи заявки: advertCreationDatePlaceholder'
     readonly messageTextModeration = 'Ваше объявление было успешно отправлено на модерацию\n\nID: *advertIdPlaceholder*\nДата подачи заявки: advertCreationDatePlaceholder\n'
     readonly messageTextAccepted = '🎉 *Поздравляем* 🎉\nВаше объявление было принято\n\nID: *advertIdPlaceholder*\nДата подачи заявки: advertCreationDatePlaceholder'
     readonly messageTextRejected = '🚫 *Внимание* 🚫\nВаше объявление было Отклонено\n\nID: *advertIdPlaceholder*\nДата подачи заявки: advertCreationDatePlaceholder'

@@ -87,11 +87,7 @@ export class MainMenuScene extends Scene<ISceneData, SceneEnterDataType> {
                 return this.completion.complete({ sceneName: 'moderationEditing' })
 
             case this.text.mainMenu.buttonSurvey:
-                return this.completion.complete({
-                    sceneName: 'survey',
-                    providerType: 'default',
-                    allowContinueQuestion: true,
-                })
+                return this.completion.complete({ sceneName: 'surveyDescription' })
         }
 
         return this.completion.canNotHandle({})
@@ -125,10 +121,10 @@ export class MainMenuScene extends Scene<ISceneData, SceneEnterDataType> {
             this.userActivePermissions.includes('owner')
         return this.keyboardMarkupWithAutoLayoutFor(
             [
-                this.text.mainMenu.buttonAbout,
                 this.text.mainMenu.buttonSurvey,
                 this.text.mainMenu.buttonLanguageSettings,
                 this.text.mainMenu.userPublications,
+                this.text.mainMenu.buttonAbout,
                 ownerOrAdmin && this.user.internalInfo.adminsOnly.modifyingPublicationIdPrepared
                     ? this.text.mainMenu.editPublicationAsAdmin
                     : null,

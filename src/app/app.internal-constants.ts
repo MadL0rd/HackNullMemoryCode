@@ -27,10 +27,12 @@ enum EnvKeys {
 
     // GPT
     gptApiKey = 'GPT_API_KEY',
-    gptModel = 'GPT_MODEL',
-    gptMaxTokens = 'GPT_MAX_TOKENS',
-    gptModelTemperature = 'GPT_MODEL_TEMPERATURE',
-    gptProxyUrl = 'GPT_PROXY_URL',
+    gptModelUri = 'GPT_MODEL_URI',
+
+    // MemoryCode
+    memoryCodeEmail = 'MEMORY_CODE_EMAIL',
+    memoryCodePassword = 'MEMORY_CODE_PASSWORD',
+    memoryCodeDevice = 'MEMORY_CODE_DEVICE',
 
     // Payment
     paymentProviderToken = 'PAYMENT_PROVIDER_TOKEN',
@@ -111,17 +113,18 @@ class InternalConstants {
     get gptApiKey(): string {
         return this.getEnvString(EnvKeys.gptApiKey)
     }
-    get gptModel(): string {
-        return this.getEnvString(EnvKeys.gptModel)
+    get gptModelUri(): string {
+        return this.getEnvString(EnvKeys.gptModelUri)
     }
-    get gptMaxTokens(): string {
-        return this.getEnvString(EnvKeys.gptMaxTokens)
+
+    get memoryCodeEmail(): string {
+        return this.getEnvString(EnvKeys.memoryCodeEmail)
     }
-    get gptModelTemperature(): number {
-        return this.getEnvNumber(EnvKeys.gptModelTemperature)
+    get memoryCodePassword(): string {
+        return this.getEnvString(EnvKeys.memoryCodePassword)
     }
-    get gptProxyUrl(): string {
-        return this.getEnvString(EnvKeys.gptProxyUrl)
+    get memoryCodeDevice(): string {
+        return this.getEnvString(EnvKeys.memoryCodeDevice)
     }
 
     // Other

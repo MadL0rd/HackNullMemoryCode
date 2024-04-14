@@ -1,47 +1,69 @@
 import { Injectable } from '@nestjs/common'
-import { AgregationType } from './enums/agregation-type.enum'
 import { UserHistoryEvent } from './enums/user-history-event.enum'
-import { CreateStatisticTableDto } from './dto/create-statistic-table.dto'
+import { AgregationType, CreateStatisticTableDto } from './dto/create-statistic-table.dto'
 import * as XLSX from 'xlsx'
 import { UserService } from './user.service'
+import { BotContentService } from '../bot-content/bot-content.service'
 
 @Injectable()
 export class StatisticService {
-    constructor(private readonly userService: UserService) {}
+    constructor(
+        private readonly userService: UserService,
+        private readonly botContent: BotContentService
+    ) {}
 
     async createTable(beginningDate: Date, endingDate: Date): Promise<Buffer> {
         const wb = { Sheets: {}, SheetNames: [] }
         const mainStatsArr: CreateStatisticTableDto[] = [
             {
                 event: 'start',
-                agregationType: AgregationType.sum,
+                agregationType: 'sum',
                 tableTitle: 'Старт',
             },
             {
                 event: 'startSceneOnboarding',
-                agregationType: AgregationType.sum,
+                agregationType: 'sum',
                 tableTitle: 'Перешел в онбординг',
+            },
+            {
+                event: 'startSceneMainMenu',
+                agregationType: 'sum',
+                tableTitle: 'Перешел в главное меню',
+            },
+            {
+                event: 'startSceneSurveyDescription',
+                agregationType: 'sum',
+                tableTitle: 'Перешел к описанию опроса',
+            },
+            {
+                event: 'startSceneSurvey',
+                agregationType: 'sum',
+                tableTitle: 'Приступил к прохождению опроса',
+            },
+            {
+                event: 'startSceneSurveyFinal',
+                agregationType: 'sum',
+                tableTitle: 'Завершил опрос',
             },
         ]
 
-        const mainWs = await this.createMainWs(
-            beginningDate,
-            endingDate,
-            AgregationType.sum,
-            mainStatsArr
-        )
+        const mainWs = await this.createMainWs(beginningDate, endingDate, 'sum', mainStatsArr)
 
         XLSX.utils.book_append_sheet(wb, mainWs, 'Общее Сумма', true)
 
+        // const surveyWs = await this.createSurveyWs(beginningDate, endingDate, 'sum')
+
+        // XLSX.utils.book_append_sheet(wb, surveyWs, 'Общее опрос', true)
+
         const uniqueStatsArr = mainStatsArr.map((elem) => {
-            elem.agregationType = AgregationType.uniqueUserActions
+            elem.agregationType = 'uniqueUserActions'
             return elem
         })
 
         const uniqueMainWs = await this.createMainWs(
             beginningDate,
             endingDate,
-            AgregationType.uniqueUserActions,
+            'uniqueUserActions',
             uniqueStatsArr
         )
         XLSX.utils.book_append_sheet(wb, uniqueMainWs, 'Общее Уник.польз', true)
@@ -54,6 +76,25 @@ export class StatisticService {
             type: 'buffer',
         })
     }
+
+    // private async createSurveyWs(
+    //     beginningDate: Date,
+    //     endingDate: Date,
+    //     sum: AgregationType
+    // ): Promise<string[][]> {
+    //     const header = [['Тип агрегирования:', sum]]
+    //     const mainWs = XLSX.utils.aoa_to_sheet(header)
+    //     mainWs['!cols'] = [{ wch: 11 }]
+
+    //     const mainTableTitle = ['Дата / Событие']
+    // }
+
+    // private async collectQuestionIds(): Promise<string[]> {
+    //     const botContent = await this.botContent.getContent(internalConstants.defaultLanguage)
+    //     return botContent.survey.questions.map((question) => question.id)
+    // }
+
+    // private createStatisticsForQuestionId
 
     private async mainStats(
         beginningDate: Date,
@@ -94,8 +135,7 @@ export class StatisticService {
         beginningDate: Date,
         endingDate: Date,
         event: UserHistoryEvent.EventTypeName,
-        agregationType: AgregationType,
-        paragraphId = null
+        agregationType: AgregationType
     ): Promise<Map<string, number>> {
         const statistics = new Map<string, number>()
 
@@ -105,28 +145,13 @@ export class StatisticService {
             const userHistory = await this.userService.findUserHistoryByTelegramId(telegramId)
             if (!userHistory) continue
 
-            let currentEvents: typeof userHistory.eventsHistory = []
-            if (paragraphId) {
-                currentEvents = userHistory.eventsHistory.filter(
-                    (record) =>
-                        record.date > beginningDate &&
-                        record.date < endingDate &&
-                        record.type === event
-                    // &&
-                    // record.content === paragraphId
-                )
-            }
-            // else {
-            //     currentEvents = userHistory.filter(
-            //         (record) =>
-            //             record.timeStamp > beginningDate &&
-            //             record.timeStamp < endingDate &&
-            //             record.event === event
-            //     )
-            // }
+            const currentEvents = userHistory.eventsHistory.filter(
+                (record) =>
+                    record.type == event && record.date > beginningDate && record.date < endingDate
+            )
 
             switch (agregationType) {
-                case AgregationType.sum:
+                case 'sum':
                     for (const currentEvent of currentEvents) {
                         const currentDate = currentEvent.date.toLocaleDateString('en-GB')
 
@@ -135,11 +160,11 @@ export class StatisticService {
                     }
                     break
 
-                case AgregationType.average:
-                case AgregationType.list:
+                case 'average':
+                case 'list':
                     break
 
-                case AgregationType.uniqueUserActions:
+                case 'uniqueUserActions':
                     const userStatistics = new Map<string, number>()
 
                     for (const currentEvent of currentEvents) {
@@ -162,10 +187,10 @@ export class StatisticService {
     private async createMainWs(
         beginningDate: Date,
         endingDate: Date,
-        agregationTpe: AgregationType,
+        agregationType: AgregationType,
         mainStatsArr: CreateStatisticTableDto[]
     ): Promise<XLSX.WorkSheet> {
-        const header = [['Тип агрегирования:', agregationTpe]]
+        const header = [['Тип агрегирования:', agregationType]]
         const mainWs = XLSX.utils.aoa_to_sheet(header)
         mainWs['!cols'] = [{ wch: 11 }]
 
@@ -184,7 +209,7 @@ export class StatisticService {
         beginningDate: Date,
         endingDate: Date
     ): Promise<XLSX.WorkSheet> {
-        const header = [['Тип агрегирования:', AgregationType.list]]
+        const header = [['Тип агрегирования:', 'list']]
         const paramsWs = XLSX.utils.aoa_to_sheet(header)
 
         const paramsTableTitle = ['Дата', 'ID телеграм', 'Параметр']

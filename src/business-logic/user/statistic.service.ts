@@ -4,7 +4,6 @@ import { AgregationType, CreateStatisticTableDto } from './dto/create-statistic-
 import * as XLSX from 'xlsx'
 import { UserService } from './user.service'
 import { BotContentService } from '../bot-content/bot-content.service'
-import { internalConstants } from 'src/app/app.internal-constants'
 
 @Injectable()
 export class StatisticService {
@@ -52,9 +51,9 @@ export class StatisticService {
 
         XLSX.utils.book_append_sheet(wb, mainWs, 'Общее Сумма', true)
 
-        const surveyWs = await this.createSurveyWs(beginningDate, endingDate, 'sum')
+        // const surveyWs = await this.createSurveyWs(beginningDate, endingDate, 'sum')
 
-        XLSX.utils.book_append_sheet(wb, surveyWs, 'Общее опрос', true)
+        // XLSX.utils.book_append_sheet(wb, surveyWs, 'Общее опрос', true)
 
         const uniqueStatsArr = mainStatsArr.map((elem) => {
             elem.agregationType = 'uniqueUserActions'
@@ -90,12 +89,12 @@ export class StatisticService {
     //     const mainTableTitle = ['Дата / Событие']
     // }
 
-    private async collectQuestionIds(): Promise<string[]> {
-        const botContent = await this.botContent.getContent(internalConstants.defaultLanguage)
-        return botContent.survey.questions.map((question) => question.id)
-    }
+    // private async collectQuestionIds(): Promise<string[]> {
+    //     const botContent = await this.botContent.getContent(internalConstants.defaultLanguage)
+    //     return botContent.survey.questions.map((question) => question.id)
+    // }
 
-    private createStatisticsForQuestionId
+    // private createStatisticsForQuestionId
 
     private async mainStats(
         beginningDate: Date,

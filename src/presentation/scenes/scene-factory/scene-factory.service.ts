@@ -18,7 +18,7 @@ import { SurveyQuestionMediaScene } from 'src/presentation/scenes/implementation
 import { UserPublicationsScene } from 'src/presentation/scenes/implementations/user-publications.scene'
 import { ModerationEditingScene } from 'src/presentation/scenes/implementations/moderation-editing.scene'
 import { SurveyDescriptionScene } from 'src/presentation/scenes/implementations/survey-description.scene'
-import { SurveyQuestionStringGptTipsScene } from 'src/presentation/scenes/implementations/survey/survey-question-string-gpt-tips.scene'
+import { SurveyQuestionStringGptTipsScene } from 'src/presentation/scenes/implementations/survey/survey-question-string-gpt-tips/survey-question-string-gpt-tips.scene'
 /** New scene import placeholder */
 
 @Injectable()

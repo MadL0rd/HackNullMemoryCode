@@ -3,10 +3,15 @@ import { internalConstants } from 'src/app/app.internal-constants'
 import { GptContextElement } from './entities/gpt-context-element'
 import { logger } from 'src/app/app.logger'
 import axios from 'axios'
+import { replaceMarkdownWithHtml } from 'src/utils/replaceMarkdownWithHtml'
 
 @Injectable()
 export class GptApiService {
-    async gptAnswer(contextMessages: GptContextElement[]): Promise<string | undefined> {
+    async gptAnswer(
+        contextMessages: GptContextElement[],
+        temperature: number | undefined = 0.6
+    ): Promise<string | undefined> {
+        temperature = temperature ? temperature : 0.6
         try {
             const apiKey = internalConstants.gptApiKey
             const modelUri = internalConstants.gptModelUri
@@ -17,7 +22,7 @@ export class GptApiService {
                     modelUri: modelUri,
                     completionOptions: {
                         stream: false,
-                        temperature: 0.6,
+                        temperature: temperature,
                     },
                     messages: contextMessages,
                 },
@@ -25,7 +30,10 @@ export class GptApiService {
                     Authorization: `Api-Key ${apiKey}`,
                 },
             })
-            return response.data.result?.alternatives?.first?.message?.text
+            const text = response.data.result?.alternatives?.first?.message?.text
+            if (!text) return undefined
+
+            return replaceMarkdownWithHtml(text.replaceAll('**', '*'))
         } catch (error) {
             console.error('Error sending completion request:', error)
             throw error

@@ -97,5 +97,9 @@ export const eventsSchema = {
         type: 'startSceneSurveyQuestionStringGptTipsAnswerEditing',
         localizedTitle: 'Перешел к сцене surveyQuestionStringGptTipsAnswerEditing',
     },
+    startSceneSurveyQuestionStringGptTipsUpdateWithGpt: {
+        type: 'startSceneSurveyQuestionStringGptTipsUpdateWithGpt',
+        localizedTitle: 'Перешел к сцене surveyQuestionStringGptTipsUpdateWithGpt',
+    },
     /** New scene event placeholder */
 } as const

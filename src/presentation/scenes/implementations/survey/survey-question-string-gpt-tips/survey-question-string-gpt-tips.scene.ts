@@ -112,6 +112,7 @@ export class SurveyQuestionStringGptTipsScene extends Scene<ISceneData, SceneEnt
                 },
             })
         }
+        await ctx.replyWithHTML(this.text.surveyQuestionGptTip.textStartMenu)
         await ctx.replyWithHTML(
             data.question.questionText,
             this.keyboardMarkupWithAutoLayoutFor([
@@ -211,7 +212,10 @@ export class SurveyQuestionStringGptTipsScene extends Scene<ISceneData, SceneEnt
     // Private methods
     // =====================
 
-    async handleMessageStartMenu(ctx: Context, data: ISceneData): Promise<SceneHandlerCompletion> {
+    private async handleMessageStartMenu(
+        ctx: Context,
+        data: ISceneData
+    ): Promise<SceneHandlerCompletion> {
         const message = ctx.message
         const chat = ctx.chat
         if (!message || !('text' in message) || !chat) return this.completion.canNotHandle(data)
@@ -266,7 +270,7 @@ export class SurveyQuestionStringGptTipsScene extends Scene<ISceneData, SceneEnt
         return this.completion.canNotHandle(data)
     }
 
-    async handleMessageWaitingForUserAnswer(
+    private async handleMessageWaitingForUserAnswer(
         ctx: Context,
         data: ISceneData
     ): Promise<SceneHandlerCompletion> {

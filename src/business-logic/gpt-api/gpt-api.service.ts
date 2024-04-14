@@ -30,10 +30,7 @@ export class GptApiService {
                     Authorization: `Api-Key ${apiKey}`,
                 },
             })
-            const text = response.data.result?.alternatives?.first?.message?.text
-            if (!text) return undefined
-
-            return replaceMarkdownWithHtml(text.replaceAll('**', '*'))
+            return response.data.result?.alternatives?.first?.message?.text?.replaceAll('*', '')
         } catch (error) {
             console.error('Error sending completion request:', error)
             throw error

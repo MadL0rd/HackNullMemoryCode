@@ -20,6 +20,7 @@ import { ModerationEditingScene } from 'src/presentation/scenes/implementations/
 import { SurveyDescriptionScene } from 'src/presentation/scenes/implementations/survey-description.scene'
 import { SurveyQuestionStringGptTipsScene } from 'src/presentation/scenes/implementations/survey/survey-question-string-gpt-tips/survey-question-string-gpt-tips.scene'
 import { SurveyQuestionStringGptTipsAnswerEditingScene } from 'src/presentation/scenes/implementations/survey/survey-question-string-gpt-tips/survey-question-string-gpt-tips-answer-editing.scene'
+import { SurveyQuestionStringGptTipsUpdateWithGptScene } from 'src/presentation/scenes/implementations/survey/survey-question-string-gpt-tips/survey-question-string-gpt-tips-update-with-gpt.scene'
 /** New scene import placeholder */
 
 @Injectable()
@@ -64,6 +65,8 @@ export class SceneFactoryService {
                 return this.injectionsProvider.resolve(SurveyQuestionStringGptTipsScene)
             case 'surveyQuestionStringGptTipsAnswerEditing':
                 return this.injectionsProvider.resolve(SurveyQuestionStringGptTipsAnswerEditingScene)
+            case 'surveyQuestionStringGptTipsUpdateWithGpt':
+                return this.injectionsProvider.resolve(SurveyQuestionStringGptTipsUpdateWithGptScene)
             /** New scene generation placeholder */
         }
         return null

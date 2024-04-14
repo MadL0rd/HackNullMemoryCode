@@ -71,6 +71,7 @@ export class SurveyQuestionStringGptTipsAnswerEditingScene extends Scene<
             `${this.name} scene handleEnterScene. User: ${this.user.telegramInfo.id} ${this.user.telegramInfo.username}`
         )
         await this.logToUserHistory({ type: 'startSceneSurveyQuestionStringGptTipsAnswerEditing' })
+
         if (!data) {
             logger.error('Scene start data corrupted')
             return this.completion.complete()
@@ -142,7 +143,13 @@ export class SurveyQuestionStringGptTipsAnswerEditingScene extends Scene<
                 })
 
             case this.text.surveyQuestionGptTip.buttonAnswerEditingUpdateWithGpt:
-                return this.completion.canNotHandle(data)
+                return this.completion.complete({
+                    sceneName: 'surveyQuestionStringGptTipsUpdateWithGpt',
+                    providerType: data.providerType,
+                    question: data.question,
+                    isQuestionFirst: data.isQuestionFirst,
+                    currentAnswer: data.currentAnswer,
+                })
 
             case this.text.surveyQuestionGptTip.buttonAnswerEditingRestart:
                 return this.completion.complete({

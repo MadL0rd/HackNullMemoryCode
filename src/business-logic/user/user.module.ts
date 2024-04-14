@@ -7,6 +7,7 @@ import {
     UserEventsHistorySchema,
     userEventsHistorySchema,
 } from './schemas/user-history-event.schema'
+import { BotContentModule } from '../bot-content/bot-content.module'
 
 @Module({
     imports: [
@@ -22,6 +23,7 @@ import {
                 schema: userEventsHistorySchema,
             },
         ]),
+        BotContentModule,
     ],
     providers: [UserService, StatisticService],
     exports: [UserService, StatisticService],

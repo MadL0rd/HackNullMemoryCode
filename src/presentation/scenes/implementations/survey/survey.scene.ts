@@ -96,6 +96,10 @@ export class SurveyScene extends Scene<ISceneData, SceneEnterDataType> {
         }
 
         const isQuestionFirst = cache.passedAnswers.isEmpty
+        await this.logToUserHistory({
+            type: 'surveyQuestionStartAnswering',
+            questionId: nextQuestion.id,
+        })
         switch (nextQuestion.type) {
             case 'options':
                 return this.completion.complete({

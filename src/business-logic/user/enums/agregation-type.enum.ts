@@ -1,6 +1,11 @@
-export enum AgregationType {
-    sum = 'Cумма',
-    average = 'Среднее значение',
-    uniqueUserActions = 'Количество уникальных пользователей',
-    list = 'Список',
+export namespace _AgregationType {
+    export type Union = (typeof allCases)[number]
+    export const allCases = ['sum', 'average', 'uniqueUserActions', 'list'] as const
+    export function includes(value: string | Union): boolean {
+        return allCases.includes(value)
+    }
+    export function castToInstance(value?: string | Union | null): Union | null {
+        if (!value) return null
+        return includes(value) ? (value as Union) : null
+    }
 }

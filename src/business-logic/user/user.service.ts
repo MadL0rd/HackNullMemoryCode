@@ -1,4 +1,3 @@
-import { Model } from 'mongoose'
 import { Injectable } from '@nestjs/common'
 import { InjectModel } from '@nestjs/mongoose'
 import { CreateUserDto } from './dto/create-user.dto'
@@ -12,6 +11,7 @@ import {
     UserHistoryEventModel,
 } from './schemas/user-history-event.schema'
 import { CreateUserEventsHistory } from './dto/create-user-events-history.dto'
+import { Model } from 'mongoose'
 
 @Injectable()
 export class UserService {
@@ -131,10 +131,6 @@ export class UserService {
     async findUserHistoryByTelegramId(
         telegramId: number
     ): Promise<UserEventsHistoryDocument | null> {
-        return await this.modelHistory
-            .findOne({ telegramId: telegramId })
-            .select({ userHistory: 1 })
-            .lean()
-            .exec()
+        return await this.modelHistory.findOne({ telegramId: telegramId }).lean().exec()
     }
 }

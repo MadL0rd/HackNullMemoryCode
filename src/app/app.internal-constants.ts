@@ -29,6 +29,9 @@ enum EnvKeys {
     gptApiKey = 'GPT_API_KEY',
     gptModelUri = 'GPT_MODEL_URI',
 
+    // Yandex SpeechKit
+    yandexApiKey = 'YANDEX_API_KEY',
+
     // MemoryCode
     memoryCodeEmail = 'MEMORY_CODE_EMAIL',
     memoryCodePassword = 'MEMORY_CODE_PASSWORD',
@@ -117,6 +120,12 @@ class InternalConstants {
         return this.getEnvString(EnvKeys.gptModelUri)
     }
 
+    // YandexSpeechKit
+    get yandexApiKey(): string {
+        return this.getEnvString(EnvKeys.yandexApiKey)
+    }
+
+    // Memory code
     get memoryCodeEmail(): string {
         return this.getEnvString(EnvKeys.memoryCodeEmail)
     }

@@ -1,3 +1,7 @@
+export type GetAccessTokenResponse = {
+    access_token: string
+}
+
 export type MemoryCodePage = {
     id?: number
     name?: string

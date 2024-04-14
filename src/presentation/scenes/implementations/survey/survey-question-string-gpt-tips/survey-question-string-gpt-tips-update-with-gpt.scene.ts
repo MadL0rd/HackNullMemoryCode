@@ -14,6 +14,7 @@ import { SurveyContextProviderType } from 'src/presentation/survey-context/abstr
 import { SurveyContextProviderFactoryService } from 'src/presentation/survey-context/survey-context-provider-factory/survey-context-provider-factory.service'
 import { removeKeyboard } from 'telegraf/markup'
 import { GptApiService } from 'src/business-logic/gpt-api/gpt-api.service'
+import { YandexSpeechKitService } from 'src/business-logic/yandex-speech-kit/yandex-speech-kit.service'
 
 // =====================
 // Scene data classes
@@ -60,7 +61,8 @@ export class SurveyQuestionStringGptTipsUpdateWithGptScene extends Scene<
     constructor(
         protected readonly userService: UserService,
         private readonly dataProviderFactory: SurveyContextProviderFactoryService,
-        private readonly gptService: GptApiService
+        private readonly gptService: GptApiService,
+        private readonly yandexSpeechKit: YandexSpeechKitService
     ) {
         super()
     }
@@ -104,9 +106,6 @@ export class SurveyQuestionStringGptTipsUpdateWithGptScene extends Scene<
             logger.error('Start data corrupted')
             return this.completion.complete()
         }
-
-        const message = ctx.message
-        if (!message || !('text' in message)) return this.completion.canNotHandle(data)
 
         switch (data.state) {
             case 'startMenu':
@@ -161,9 +160,24 @@ export class SurveyQuestionStringGptTipsUpdateWithGptScene extends Scene<
         data: ISceneData
     ): Promise<SceneHandlerCompletion> {
         const message = ctx.message
-        if (!message || !('text' in message)) return this.completion.canNotHandle(data)
+        if (!message) return this.completion.canNotHandle(data)
 
-        data.userWishes = message.text
+        let textFromMessage: string | undefined = undefined
+
+        if ('text' in message) textFromMessage = message.text
+        if ('voice' in message) {
+            const fileId = message.voice.file_id
+            textFromMessage = await this.yandexSpeechKit.recognizeTextFromAudio(fileId)
+
+            if (!textFromMessage) {
+                await ctx.replyWithHTML(this.text.common.errorMessage)
+                return this.completion.inProgress(data)
+            }
+        }
+
+        if (!textFromMessage) return this.completion.canNotHandle(data)
+
+        data.userWishes = textFromMessage
         return await this.sendGptAnswerAndComplete(ctx, data)
     }
 
@@ -212,6 +226,7 @@ export class SurveyQuestionStringGptTipsUpdateWithGptScene extends Scene<
             this.text.surveyQuestionGptTip.textUpdateWithGptSaveResult,
             this.keyboardMarkupWithAutoLayoutFor([
                 this.text.surveyQuestionGptTip.buttonUpdateWithGptSaveResultYes,
+                this.text.surveyQuestionGptTip.buttonUpdateWithGptSaveResultTryAgain,
                 this.text.surveyQuestionGptTip.buttonUpdateWithGptSaveResultNo,
             ])
         )
@@ -237,6 +252,9 @@ export class SurveyQuestionStringGptTipsUpdateWithGptScene extends Scene<
                     isQuestionFirst: data.isQuestionFirst,
                     currentAnswer: data.gptAnswer ?? data.currentAnswer,
                 })
+
+            case this.text.surveyQuestionGptTip.buttonUpdateWithGptSaveResultTryAgain:
+                return this.sendGptAnswerAndComplete(ctx, data)
 
             case this.text.surveyQuestionGptTip.buttonUpdateWithGptSaveResultNo:
                 return this.completion.complete({

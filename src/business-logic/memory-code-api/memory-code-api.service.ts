@@ -3,7 +3,12 @@ import axios from 'axios'
 import { internalConstants } from 'src/app/app.internal-constants'
 import { logger } from 'src/app/app.logger'
 import { Publication } from 'src/entities/publication'
-import { MemoryCodePage } from './models/memory-code-page.type'
+import {
+    Biography,
+    GetAccessTokenResponse,
+    MemoryCodePage,
+    PageInformation,
+} from './models/memory-code-page.type'
 import { Survey } from 'src/entities/survey'
 import { BotContent } from 'src/entities/bot-content'
 
@@ -88,8 +93,79 @@ export class MemoryCodeApiService {
             .forEach((answer) => (publicationValuesObject[answer.id] = answer.value))
 
         pageBaseData.name = publicationValuesObject['fullName']
+        pageBaseData.birthday_at = publicationValuesObject['birthDay']
+        pageBaseData.died_at = publicationValuesObject['deathDay']
         pageBaseData.epitaph = publicationValuesObject['epitaph']
         pageBaseData.author_epitaph = publicationValuesObject['epitaphAuthor']
+
+        // Page information
+        const pageInformationList: PageInformation[] = [
+            {
+                title: 'pageInformation.placeOfBirth',
+                description: publicationValuesObject['birthPlace'],
+            },
+            {
+                title: 'pageInformation.placeOfDeath',
+                description: publicationValuesObject['deathPlace'],
+            },
+            {
+                title: 'pageInformation.children',
+                description: publicationValuesObject['chidren'],
+            },
+            {
+                title: 'pageInformation.citizenship',
+                description: publicationValuesObject['citizenship'],
+            },
+            {
+                title: 'pageInformation.education',
+                description: publicationValuesObject['education'],
+            },
+            {
+                title: 'pageInformation.occupation',
+                description: publicationValuesObject['occupation'],
+            },
+            {
+                title: 'pageInformation.awards',
+                description: publicationValuesObject['awards'],
+            },
+            {
+                title: 'pageInformation.husband',
+                description: publicationValuesObject['partner'],
+            },
+        ].filter((info) => info.description)
+        pageBaseData.page_information = pageInformationList
+
+        // Biography
+        const biographies: Biography[] = [
+            {
+                order: 1,
+                title: publicationValuesObject['titleBio1'],
+                description: publicationValuesObject['bio1'],
+            },
+            {
+                order: 2,
+                title: publicationValuesObject['titleBio2'],
+                description: publicationValuesObject['bio2'],
+            },
+            {
+                order: 3,
+                title: publicationValuesObject['titleBio3'],
+                description: publicationValuesObject['bio3'],
+            },
+            {
+                order: 4,
+                description: publicationValuesObject['bioConclusion'],
+            },
+        ]
+        pageBaseData.biographies = biographies
+
+        pageBaseData.comments_public = [
+            {
+                fio: 'Друг',
+                relation_role: 'Друг',
+                text: publicationValuesObject['wordsOfFriends'],
+            },
+        ]
 
         const accessToken = await this.getAccessToken()
         if (!accessToken) {
@@ -113,8 +189,4 @@ export class MemoryCodeApiService {
         }
         return false
     }
-}
-
-type GetAccessTokenResponse = {
-    access_token: string
 }

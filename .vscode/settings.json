@@ -9,6 +9,10 @@
             "group": "Default"
         },
         {
+            "filePath": "src/entities",
+            "group": "Default"
+        },
+        {
             "filePath": "src/business-logic",
             "group": "Default"
         },

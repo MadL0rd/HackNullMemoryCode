@@ -2,31 +2,34 @@ import { logger } from 'src/app/app.logger'
 import { UserService } from 'src/business-logic/user/user.service'
 import { Markup, Context } from 'telegraf'
 import { Update } from 'telegraf/types'
-import { SceneCallbackAction, SceneCallbackData } from '../../models/scene-callback'
-import { SceneEntrance } from '../../models/scene-entrance.interface'
-import { SceneName } from '../../models/scene-name.enum'
-import { SceneHandlerCompletion } from '../../models/scene.interface'
-import { Scene } from '../../models/scene.abstract'
-import { SceneUsagePermissionsValidator } from '../../models/scene-usage-permissions-validator'
-import { InjectableSceneConstructor } from '../../scene-factory/scene-injections-provider.service'
+import { SceneCallbackAction, SceneCallbackData } from '../../../models/scene-callback'
+import { SceneEntrance } from '../../../models/scene-entrance.interface'
+import { SceneName } from '../../../models/scene-name.enum'
+import { SceneHandlerCompletion } from '../../../models/scene.interface'
+import { Scene } from '../../../models/scene.abstract'
+import { SceneUsagePermissionsValidator } from '../../../models/scene-usage-permissions-validator'
+import { InjectableSceneConstructor } from '../../../scene-factory/scene-injections-provider.service'
+import { Survey } from 'src/entities/survey'
 import { SurveyContextProviderType } from 'src/presentation/survey-context/abstract/survey-context-provider.interface'
 import { SurveyContextProviderFactoryService } from 'src/presentation/survey-context/survey-context-provider-factory/survey-context-provider-factory.service'
 import { removeKeyboard } from 'telegraf/markup'
-import { Survey } from 'src/entities/survey'
+import { GptApiService } from 'src/business-logic/gpt-api/gpt-api.service'
 
 // =====================
 // Scene data classes
 // =====================
-export class SurveyQuestionStringNumericSceneEntranceDto implements SceneEntrance.Dto {
-    readonly sceneName = 'surveyQuestionStringNumeric'
+export class SurveyQuestionStringGptTipsSceneEntranceDto implements SceneEntrance.Dto {
+    readonly sceneName = 'surveyQuestionStringGptTips'
     readonly providerType: SurveyContextProviderType.Union
-    readonly question: Survey.QuestionString | Survey.QuestionNumeric
+    readonly question: Survey.QuestionStringGptTips
     readonly isQuestionFirst: boolean
 }
-type SceneEnterDataType = SurveyQuestionStringNumericSceneEntranceDto
+type SceneEnterDataType = SurveyQuestionStringGptTipsSceneEntranceDto
 interface ISceneData {
     readonly providerType: SurveyContextProviderType.Union
-    readonly question: Survey.QuestionString | Survey.QuestionNumeric
+    readonly question: Survey.QuestionStringGptTips
+    readonly isQuestionFirst: boolean
+    state: 'startMenu' | 'waitingForUserAnswer'
 }
 
 type CallbackDataType = {
@@ -41,12 +44,12 @@ type CallbackDataType = {
 // =====================
 
 @InjectableSceneConstructor()
-export class SurveyQuestionStringNumericScene extends Scene<ISceneData, SceneEnterDataType> {
+export class SurveyQuestionStringGptTipsScene extends Scene<ISceneData, SceneEnterDataType> {
     // =====================
     // Properties
     // =====================
 
-    readonly name: SceneName.Union = 'surveyQuestionStringNumeric'
+    readonly name: SceneName.Union = 'surveyQuestionStringGptTips'
     protected get dataDefault(): ISceneData {
         return {} as ISceneData
     }
@@ -56,7 +59,8 @@ export class SurveyQuestionStringNumericScene extends Scene<ISceneData, SceneEnt
 
     constructor(
         protected readonly userService: UserService,
-        private readonly dataProviderFactory: SurveyContextProviderFactoryService
+        private readonly dataProviderFactory: SurveyContextProviderFactoryService,
+        private readonly gptService: GptApiService
     ) {
         super()
     }
@@ -72,7 +76,7 @@ export class SurveyQuestionStringNumericScene extends Scene<ISceneData, SceneEnt
         logger.log(
             `${this.name} scene handleEnterScene. User: ${this.user.telegramInfo.id} ${this.user.telegramInfo.username}`
         )
-        await this.logToUserHistory({ type: 'startSceneSurveyQuestionStringNumeric' })
+        await this.logToUserHistory({ type: 'startSceneSurveyQuestionStringGptTips' })
 
         if (!data) {
             logger.error('Scene start data corrupted')
@@ -108,9 +112,19 @@ export class SurveyQuestionStringNumericScene extends Scene<ISceneData, SceneEnt
                 },
             })
         }
-        await ctx.replyWithHTML(data.question.questionText, removeKeyboard())
+        await ctx.replyWithHTML(this.text.surveyQuestionGptTip.textStartMenu)
+        await ctx.replyWithHTML(
+            data.question.questionText,
+            this.keyboardMarkupWithAutoLayoutFor([
+                this.text.surveyQuestionGptTip.buttonStartMenuContinue,
+                this.text.surveyQuestionGptTip.buttonStartMenuGptTip,
+            ])
+        )
 
-        return this.completion.inProgress(data)
+        return this.completion.inProgress({
+            ...data,
+            state: 'startMenu',
+        })
     }
 
     async handleMessage(ctx: Context, dataRaw: object): Promise<SceneHandlerCompletion> {
@@ -122,42 +136,14 @@ export class SurveyQuestionStringNumericScene extends Scene<ISceneData, SceneEnt
             logger.error('Start data corrupted')
             return this.completion.complete()
         }
-        const provider = this.dataProviderFactory.getSurveyContextProvider(data.providerType)
 
-        const message = ctx.message
-        if (!message || !('text' in message)) return this.completion.canNotHandle(data)
-
-        switch (data.question.type) {
-            case 'numeric':
-                const convertedAnswer = parseFloat(
-                    message.text.replaceAll(',', '.').trim().replaceAll(' ', '')
-                )
-                if (Number.isNaN(convertedAnswer)) {
-                    await ctx.replyWithHTML(this.text.survey.errorMessageAnswerIsNotNumber)
-                    return this.completion.inProgress(data)
-                }
-                await provider.pushAnswerToCache(this.user, {
-                    type: 'numeric',
-                    question: data.question,
-                    selectedNumber: convertedAnswer,
-                })
-                return this.completion.complete({
-                    sceneName: 'survey',
-                    providerType: data.providerType,
-                    allowContinueQuestion: false,
-                })
-            case 'string':
-                await provider.pushAnswerToCache(this.user, {
-                    type: 'string',
-                    question: data.question,
-                    selectedString: message.text,
-                })
-                return this.completion.complete({
-                    sceneName: 'survey',
-                    providerType: data.providerType,
-                    allowContinueQuestion: false,
-                })
+        switch (data.state) {
+            case 'startMenu':
+                return await this.handleMessageStartMenu(ctx, data)
+            case 'waitingForUserAnswer':
+                return await this.handleMessageWaitingForUserAnswer(ctx, data)
         }
+
         return this.completion.canNotHandle(data)
     }
 
@@ -225,4 +211,78 @@ export class SurveyQuestionStringNumericScene extends Scene<ISceneData, SceneEnt
     // =====================
     // Private methods
     // =====================
+
+    private async handleMessageStartMenu(
+        ctx: Context,
+        data: ISceneData
+    ): Promise<SceneHandlerCompletion> {
+        const message = ctx.message
+        const chat = ctx.chat
+        if (!message || !('text' in message) || !chat) return this.completion.canNotHandle(data)
+
+        switch (message.text) {
+            case this.text.surveyQuestionGptTip.buttonStartMenuContinue:
+                await ctx.replyWithHTML(
+                    this.text.surveyQuestionGptTip.textStartMenuEnterMessage,
+                    removeKeyboard()
+                )
+
+                data.state = 'waitingForUserAnswer'
+                return this.completion.inProgress(data)
+
+            case this.text.surveyQuestionGptTip.buttonStartMenuGptTip:
+                const gtpMessage = await ctx.replyWithHTML(
+                    this.text.surveyQuestionGptTip.textWaitingForGptAnswer
+                )
+                const provider = this.dataProviderFactory.getSurveyContextProvider(
+                    data.providerType
+                )
+                const dataString = JSON.stringify({
+                    languageCode: this.content.language,
+                    question: data.question,
+                    userPassedAnswers: await provider.getAnswersCache(this.user),
+                })
+                const gptAnswer = await this.gptService.gptAnswer(
+                    [
+                        {
+                            role: 'system',
+                            text:
+                                this.text.surveyQuestionGptTip.promptStartMenuGptTip +
+                                '\n' +
+                                dataString,
+                        },
+                    ],
+                    Number(this.text.surveyQuestionGptTip.promptStartMenuGptTipTemperature)
+                )
+                await ctx.telegram.editMessageText(
+                    chat.id,
+                    gtpMessage.message_id,
+                    undefined,
+                    gptAnswer ?? this.text.common.errorMessage,
+                    {
+                        parse_mode: 'HTML',
+                    }
+                )
+
+                return this.completion.inProgress(data)
+        }
+
+        return this.completion.canNotHandle(data)
+    }
+
+    private async handleMessageWaitingForUserAnswer(
+        ctx: Context,
+        data: ISceneData
+    ): Promise<SceneHandlerCompletion> {
+        const message = ctx.message
+        if (!message || !('text' in message)) return this.completion.canNotHandle(data)
+
+        return this.completion.complete({
+            sceneName: 'surveyQuestionStringGptTipsAnswerEditing',
+            providerType: data.providerType,
+            question: data.question,
+            isQuestionFirst: data.isQuestionFirst,
+            currentAnswer: message.text,
+        })
+    }
 }

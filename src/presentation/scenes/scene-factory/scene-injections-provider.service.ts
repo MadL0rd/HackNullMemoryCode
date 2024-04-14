@@ -32,13 +32,13 @@ export class SceneInjectionsProviderService {
     private registry: Map<string, any> = new Map()
 
     constructor(
+        @InjectBot() private readonly bot: Telegraf,
         protected readonly userService: UserService,
         protected readonly botContentService: BotContentService,
         protected readonly surveyContextProviderFactory: SurveyContextProviderFactoryService,
         protected readonly statisticService: StatisticService,
         protected readonly publicationStorageService: PublicationStorageService,
         protected readonly moderatedPublicationService: ModeratedPublicationsService,
-        @InjectBot() private readonly bot: Telegraf,
         protected readonly gptService: GptApiService
     ) {
         const propertyNames = Object.keys(this).filter((prop) => prop != 'registry')

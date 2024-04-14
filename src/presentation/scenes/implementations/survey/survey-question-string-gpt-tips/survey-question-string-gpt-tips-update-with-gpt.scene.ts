@@ -178,7 +178,7 @@ export class SurveyQuestionStringGptTipsUpdateWithGptScene extends Scene<
         const provider = this.dataProviderFactory.getSurveyContextProvider(data.providerType)
         const dataString = JSON.stringify({
             languageCode: this.content.language,
-            currentUserAnswer: data.currentAnswer,
+            currentUserAnswer: `ОБЯЗАТЕЛЬНО УЧТИ СЛЕДУЮЩЕЕ ПОЖЕЛАНИЕ: ${data.userWishes}. Версия, которую нужно улучшить: ${data.currentAnswer}`,
             userWishes: data.userWishes ?? null,
             question: data.question,
             userPassedAnswers: await provider.getAnswersCache(this.user),

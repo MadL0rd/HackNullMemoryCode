@@ -149,9 +149,11 @@ export class SurveyQuestionStringGptTipsUpdateWithGptScene extends Scene<
 
             case this.text.surveyQuestionGptTip.buttonUpdateWithGptWishesNo:
                 return await this.sendGptAnswerAndComplete(ctx, data)
-        }
 
-        return this.completion.canNotHandle(data)
+            default:
+                data.userWishes = message.text
+                return await this.sendGptAnswerAndComplete(ctx, data)
+        }
     }
 
     private async handleMessageWaitForUserWishes(
@@ -175,11 +177,15 @@ export class SurveyQuestionStringGptTipsUpdateWithGptScene extends Scene<
         const gtpMessage = await ctx.replyWithHTML(
             this.text.surveyQuestionGptTip.textWaitingForGptAnswer
         )
+        await ctx.sendChatAction('typing')
+
         const provider = this.dataProviderFactory.getSurveyContextProvider(data.providerType)
         const dataString = JSON.stringify({
             languageCode: this.content.language,
-            currentUserAnswer: `ОБЯЗАТЕЛЬНО УЧТИ СЛЕДУЮЩЕЕ ПОЖЕЛАНИЕ: ${data.userWishes}. Версия, которую нужно улучшить: ${data.currentAnswer}`,
-            userWishes: data.userWishes ?? null,
+            currentUserAnswer: `Версия, которую нужно улучшить: ${data.currentAnswer}`,
+            userWishes: data.userWishes
+                ? `ОБЯЗАТЕЛЬНО УЧТИ СЛЕДУЮЩЕЕ ПОЖЕЛАНИЕ: ${data.userWishes}.`
+                : 'Сделай на свой вкус с учетом предыдущих ответов из поля "userPassedAnswers"',
             question: data.question,
             userPassedAnswers: await provider.getAnswersCache(this.user),
         })

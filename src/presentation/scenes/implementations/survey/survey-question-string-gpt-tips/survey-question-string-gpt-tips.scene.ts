@@ -2,7 +2,7 @@ import { logger } from 'src/app/app.logger'
 import { UserService } from 'src/business-logic/user/user.service'
 import { Markup, Context } from 'telegraf'
 import { Update } from 'telegraf/types'
-import { SceneCallbackAction, SceneCallbackData } from '../../../models/scene-callback'
+import { SceneCallbackData } from '../../../models/scene-callback'
 import { SceneEntrance } from '../../../models/scene-entrance.interface'
 import { SceneName } from '../../../models/scene-name.enum'
 import { SceneHandlerCompletion } from '../../../models/scene.interface'
@@ -30,13 +30,6 @@ interface ISceneData {
     readonly question: Survey.QuestionStringGptTips
     readonly isQuestionFirst: boolean
     state: 'startMenu' | 'waitingForUserAnswer'
-}
-
-type CallbackDataType = {
-    /** provider id */
-    p: number
-    /** answer id */
-    a: string
 }
 
 // =====================
@@ -83,42 +76,17 @@ export class SurveyQuestionStringGptTipsScene extends Scene<ISceneData, SceneEnt
             return this.completion.complete()
         }
 
-        if (!data.question.isRequired || !data.isQuestionFirst) {
-            const inlineButtonData: CallbackDataType = {
-                p: SurveyContextProviderType.getId(data.providerType),
-                a: data.question.id,
-            }
-            await ctx.replyWithHTML(this.text.survey.texMessageAditionaltInlineMenu, {
-                reply_markup: {
-                    inline_keyboard: [
-                        [
-                            data.question.isRequired
-                                ? null
-                                : this.inlineButton({
-                                      text: this.text.survey.buttonAditionaltInlineMenuSkip,
-                                      action: SceneCallbackAction.surveySkipQuestion,
-                                      data: inlineButtonData,
-                                  }),
-                            data.isQuestionFirst
-                                ? null
-                                : this.inlineButton({
-                                      text: this.text.survey
-                                          .buttonAditionaltInlineMenuBackToPrevious,
-                                      action: SceneCallbackAction.surveyBackToPreviousQuestion,
-                                      data: inlineButtonData,
-                                  }),
-                        ].compact,
-                    ],
-                },
-            })
-        }
         await ctx.replyWithHTML(this.text.surveyQuestionGptTip.textStartMenu)
         await ctx.replyWithHTML(
             data.question.questionText,
-            this.keyboardMarkupWithAutoLayoutFor([
-                this.text.surveyQuestionGptTip.buttonStartMenuContinue,
-                this.text.surveyQuestionGptTip.buttonStartMenuGptTip,
-            ])
+            this.keyboardMarkupWithAutoLayoutFor(
+                [
+                    this.text.surveyQuestionGptTip.buttonStartMenuContinue,
+                    this.text.surveyQuestionGptTip.buttonStartMenuGptTip,
+                    data.question.isRequired ? null : this.text.survey.buttonOptionalQuestionSkip,
+                    data.isQuestionFirst ? null : this.text.survey.buttonBackToPreviousQuestion,
+                ].compact
+            )
         )
 
         return this.completion.inProgress({
@@ -151,61 +119,7 @@ export class SurveyQuestionStringGptTipsScene extends Scene<ISceneData, SceneEnt
         ctx: Context<Update.CallbackQueryUpdate>,
         data: SceneCallbackData
     ): Promise<SceneHandlerCompletion> {
-        if (ctx.callbackQuery.message) {
-            await ctx.deleteMessage(ctx.callbackQuery.message.message_id)
-        }
-
-        if (
-            !(
-                data.data &&
-                'a' in data.data &&
-                'p' in data.data &&
-                typeof data.data.a == 'string' &&
-                typeof data.data.p == 'number'
-            )
-        ) {
-            return this.completion.canNotHandleUnsafe()
-        }
-        const inlineButtonData = data.data as CallbackDataType
-
-        const providerType = SurveyContextProviderType.getById(inlineButtonData.p)
-        if (!providerType) return this.completion.canNotHandleUnsafe()
-
-        const provider = this.dataProviderFactory.getSurveyContextProvider(providerType)
-        if (!provider) return this.completion.canNotHandleUnsafe()
-
-        const answerId = inlineButtonData.a
-        const cache = await provider.getAnswersCache(this.user)
-        const surveySource = await provider.getSurvey(this.user)
-        const nextQuestion = Survey.Helper.findNextQuestion(surveySource, cache.passedAnswers)
-        if (nextQuestion?.id != answerId) return this.completion.canNotHandleUnsafe()
-
-        switch (data.action) {
-            case SceneCallbackAction.surveyBackToPreviousQuestion:
-                await provider.popAnswerFromCache(this.user)
-                await ctx.replyWithHTML(
-                    this.text.survey.textAditionaltInlineMenuBackToPreviousEventLog
-                )
-                return this.completion.complete({
-                    sceneName: 'survey',
-                    providerType: providerType,
-                    allowContinueQuestion: false,
-                })
-
-            case SceneCallbackAction.surveySkipQuestion:
-                if (nextQuestion.isRequired) return this.completion.canNotHandleUnsafe()
-
-                const answer = Survey.Helper.getEmptyAnswerForQuestion(nextQuestion)
-                await provider.pushAnswerToCache(this.user, answer)
-                await ctx.replyWithHTML(this.text.survey.textAditionaltInlineMenuSkipEventLog)
-                return this.completion.complete({
-                    sceneName: 'survey',
-                    providerType: providerType,
-                    allowContinueQuestion: false,
-                })
-            default:
-                return this.completion.canNotHandleUnsafe()
-        }
+        throw Error('Method not implemented.')
     }
 
     // =====================
@@ -220,8 +134,31 @@ export class SurveyQuestionStringGptTipsScene extends Scene<ISceneData, SceneEnt
         const chat = ctx.chat
         if (!message || !('text' in message) || !chat) return this.completion.canNotHandle(data)
 
+        const provider = this.dataProviderFactory.getSurveyContextProvider(data.providerType)
+
         switch (message.text) {
-            case this.text.surveyQuestionGptTip.buttonStartMenuContinue:
+            case this.text.survey.buttonOptionalQuestionSkip: {
+                if (data.question.isRequired) break
+                await provider.pushAnswerToCache(
+                    this.user,
+                    Survey.Helper.getEmptyAnswerForQuestion(data.question)
+                )
+                return this.completion.complete({
+                    sceneName: 'survey',
+                    providerType: data.providerType,
+                    allowContinueQuestion: false,
+                })
+            }
+            case this.text.survey.buttonBackToPreviousQuestion: {
+                await provider.popAnswerFromCache(this.user)
+                return this.completion.complete({
+                    sceneName: 'survey',
+                    providerType: data.providerType,
+                    allowContinueQuestion: false,
+                })
+            }
+
+            case this.text.surveyQuestionGptTip.buttonStartMenuContinue: {
                 await ctx.replyWithHTML(
                     this.text.surveyQuestionGptTip.textStartMenuEnterMessage,
                     removeKeyboard()
@@ -229,14 +166,14 @@ export class SurveyQuestionStringGptTipsScene extends Scene<ISceneData, SceneEnt
 
                 data.state = 'waitingForUserAnswer'
                 return this.completion.inProgress(data)
+            }
 
-            case this.text.surveyQuestionGptTip.buttonStartMenuGptTip:
+            case this.text.surveyQuestionGptTip.buttonStartMenuGptTip: {
                 const gtpMessage = await ctx.replyWithHTML(
                     this.text.surveyQuestionGptTip.textWaitingForGptAnswer
                 )
-                const provider = this.dataProviderFactory.getSurveyContextProvider(
-                    data.providerType
-                )
+                await ctx.sendChatAction('typing')
+
                 const dataString = JSON.stringify({
                     languageCode: this.content.language,
                     question: data.question,
@@ -265,9 +202,16 @@ export class SurveyQuestionStringGptTipsScene extends Scene<ISceneData, SceneEnt
                 )
 
                 return this.completion.inProgress(data)
+            }
         }
 
-        return this.completion.canNotHandle(data)
+        return this.completion.complete({
+            sceneName: 'surveyQuestionStringGptTipsAnswerEditing',
+            providerType: data.providerType,
+            question: data.question,
+            isQuestionFirst: data.isQuestionFirst,
+            currentAnswer: message.text,
+        })
     }
 
     private async handleMessageWaitingForUserAnswer(

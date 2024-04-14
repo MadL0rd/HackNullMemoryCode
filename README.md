@@ -45,18 +45,14 @@ $ npm run start:dev
 docker-compose up -d --build
 ```
 
-### Container logs (last 50 lines of logs)
-```bash
-docker-compose logs --tail 50
-```
-
 ## Test spreadsheet
-[Google spreadsheet](https://docs.google.com/spreadsheets/d/1YLjE5g7Xa6GiV3F0q7Q6jFMZbFbOULrppV338E7_wiA/)
+[Google spreadsheet](https://docs.google.com/spreadsheets/d/1GvxskEUgHbGrPY6_8WksO-e1EfvsD_eJY9RNmMBEYm4/)
 
 ## Nest cli tips
 
 ```sh
-nest g resource core/users --no-spec
+nest g mo business-logic/users
+nest g s business-logic/users --no-spec
 ```
 
 ## License

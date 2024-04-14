@@ -14,6 +14,7 @@ import { SurveyContextProviderType } from 'src/presentation/survey-context/abstr
 import { SurveyContextProviderFactoryService } from 'src/presentation/survey-context/survey-context-provider-factory/survey-context-provider-factory.service'
 import { removeKeyboard } from 'telegraf/markup'
 import { GptApiService } from 'src/business-logic/gpt-api/gpt-api.service'
+import { YandexSpeechKitService } from 'src/business-logic/yandex-speech-kit/yandex-speech-kit.service'
 
 // =====================
 // Scene data classes
@@ -53,7 +54,8 @@ export class SurveyQuestionStringGptTipsScene extends Scene<ISceneData, SceneEnt
     constructor(
         protected readonly userService: UserService,
         private readonly dataProviderFactory: SurveyContextProviderFactoryService,
-        private readonly gptService: GptApiService
+        private readonly gptService: GptApiService,
+        private readonly yandexSpeechKit: YandexSpeechKitService
     ) {
         super()
     }
@@ -219,14 +221,29 @@ export class SurveyQuestionStringGptTipsScene extends Scene<ISceneData, SceneEnt
         data: ISceneData
     ): Promise<SceneHandlerCompletion> {
         const message = ctx.message
-        if (!message || !('text' in message)) return this.completion.canNotHandle(data)
+        if (!message) return this.completion.canNotHandle(data)
+
+        let textFromMessage: string | undefined = undefined
+
+        if ('text' in message) textFromMessage = message.text
+        if ('voice' in message) {
+            const fileId = message.voice.file_id
+            textFromMessage = await this.yandexSpeechKit.recognizeTextFromAudio(fileId)
+
+            if (!textFromMessage) {
+                await ctx.replyWithHTML(this.text.common.errorMessage)
+                return this.completion.inProgress(data)
+            }
+        }
+
+        if (!textFromMessage) return this.completion.canNotHandle(data)
 
         return this.completion.complete({
             sceneName: 'surveyQuestionStringGptTipsAnswerEditing',
             providerType: data.providerType,
             question: data.question,
             isQuestionFirst: data.isQuestionFirst,
-            currentAnswer: message.text,
+            currentAnswer: textFromMessage,
         })
     }
 }

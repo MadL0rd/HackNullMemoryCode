@@ -157,7 +157,7 @@ export class SurveyQuestionGptTip {
     readonly buttonUpdateWithGptWishesNo = 'Сделай на свой вкус'
     readonly textUpdateWithGptWishesEnter = 'Напишите ваш ответ текстом или отправьте голосовое сообщение'
     readonly promptUpdateWithGptTemperature = '0.4'
-    readonly promptUpdateWithGpt = 'PROMPT'
+    readonly promptUpdateWithGpt = 'Я прохожу опрос для заполнения страницы посвященной памяти умершего родственника. \nНужно помочь мне развёрнуто ответить на вопрос.\nЕсли информации достаточно, используй ответы на предыдущие вопросы.\nВ ОТВЕТЕ ДОЛЖЕН БЫТЬ РОВНО ОДИН ВАРИАНТ ЭПИТАФИИ.\nВ ОТВЕТЕ НЕ ДОЛЖНО БЫТЬ НИЧЕГО ЛИШНЕГО, ТОЛЬКО ОТВЕТ НА ВОПРОС.\nОБЯЗАТЕЛЬНО УЧИТЫВАЙ МОИ ПОЖЕЛАНИЯ\nДалее данные: - код языка, на котором нужно ОБЯЗАТЕЛЬНО перевести твое сообщение ЦЕЛИКОМ - текущий вопрос - мои ответы на предыдущие вопросы'
     readonly textUpdateWithGptSaveResult = 'Как Вам результат?'
     readonly buttonUpdateWithGptSaveResultYes = 'Мне нравится'
     readonly buttonUpdateWithGptSaveResultNo = 'Прошлый вариант был лучше'
@@ -174,6 +174,8 @@ export class ModerationCommand {
     readonly notRelevant = 'Не актуально'
     /** Команда для чата модерации */
     readonly edit = 'Редактировать'
+    /** Команда для чата модерации */
+    readonly placeMemoryCode = 'Обновить на MemoryCode'
 }
 
 export class Moderation {

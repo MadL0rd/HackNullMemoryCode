@@ -8,6 +8,7 @@ import { ScenesModule } from '../scenes/scenes.module'
 import { ModerationChatDispatcherService } from './moderation-chat-dispatcher/moderation-chat-dispatcher.service'
 import { PublicationStorageModule } from 'src/business-logic/publication-storage/publication-storage.module'
 import { PublicationManagementModule } from '../publication-management/publication-management.module'
+import { MemoryCodeApiModule } from 'src/business-logic/memory-code-api/memory-code-api.module'
 
 @Module({
     imports: [
@@ -18,6 +19,7 @@ import { PublicationManagementModule } from '../publication-management/publicati
         ScenesModule,
         PublicationStorageModule,
         PublicationManagementModule,
+        MemoryCodeApiModule,
     ],
     providers: [PrivateDialogDispatcherService, ModerationChatDispatcherService],
     exports: [PrivateDialogDispatcherService, ModerationChatDispatcherService],
